@@ -57,6 +57,40 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
   before :store, :remember_cache_id
   after :store, :delete_tmp_dir
 
+  #孙汕锟重构cache!方法 ------------------------------------------------
+  def cache!(new_file = sanitized_file)
+    new_file = CarrierWave::SanitizedFile.new(new_file)
+
+    unless new_file.empty?
+      raise CarrierWave::FormNotMultipart if new_file.is_path? && ensure_multipart_form
+
+      with_callbacks(:cache, new_file) do
+        self.cache_id = CarrierWave.generate_cache_id unless cache_id
+
+        @filename = new_file.filename
+        self.original_filename = new_file.filename
+
+        @file = if move_to_cache
+          new_file.move_to(cache_path, permissions, directory_permissions)
+        else
+          new_file.copy_to(cache_path, permissions, directory_permissions)
+        end
+
+        #@file为移动或copy后缓存的临时文件，将这个临时文件的格式修改为jpg
+        if file.content_type.eql?("image/png")
+          @filename = "#{File.basename(@file.path, ".*")}.jpg"
+          self.original_filename = @filename
+          jpg_path = File.join(File.dirname(@file.path) , @filename)
+          image = MiniMagick::Image.open(@file.path)
+          image.format("jpg")
+          image.write(jpg_path)
+          @file = CarrierWave::SanitizedFile.new(File.new(jpg_path))
+        end
+      end
+    end
+  end
+  #孙汕锟修改 ------------------------------------------------
+
   # store! nil's the cache_id after it finishes so we need to remember it for deletition
   def remember_cache_id(new_file)
     @cache_id_was = cache_id
