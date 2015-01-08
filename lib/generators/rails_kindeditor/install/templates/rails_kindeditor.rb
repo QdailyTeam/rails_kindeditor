@@ -16,4 +16,6 @@ RailsKindeditor.setup do |config|
   #     400x400   => 400x400  # No Change
   # config.image_resize_to_limit = [800, 800]
 
+  config.whether_to_enable_quality = true #是否压缩图片物理大小，true为压缩，默认false
+  config.quality_proportion = 80 #压缩百分比，默认100
 end

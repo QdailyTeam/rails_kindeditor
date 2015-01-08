@@ -22,6 +22,12 @@ module RailsKindeditor
   @@upload_file_ext = %w[doc docx xls xlsx ppt htm html txt zip rar gz bz2]
   
   mattr_accessor :image_resize_to_limit
+
+  mattr_accessor :whether_to_enable_quality
+  @@whether_to_enable_quality = false
+
+  mattr_accessor :quality_proportion
+  @@quality_proportion = 100
   
   def self.root_path
     @root_path ||= Pathname.new(File.dirname(File.expand_path('../', __FILE__)))

@@ -7,7 +7,8 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
   EXT_NAMES = {:image => RailsKindeditor.upload_image_ext,
                :flash => RailsKindeditor.upload_flash_ext,
                :media => RailsKindeditor.upload_media_ext,
-               :file  => RailsKindeditor.upload_file_ext}
+               :file  => RailsKindeditor.upload_file_ext,
+             }
 
   # Include RMagick or ImageScience support:
   # include CarrierWave::RMagick
@@ -57,7 +58,7 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
   before :store, :remember_cache_id
   after :store, :delete_tmp_dir
 
-  #孙汕锟重构cache!方法 ------------------------------------------------
+  #重构cache!方法 ------------------------------------------------
   def cache!(new_file = sanitized_file)
     new_file = CarrierWave::SanitizedFile.new(new_file)
 
@@ -75,21 +76,10 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
         else
           new_file.copy_to(cache_path, permissions, directory_permissions)
         end
-
-        #@file为移动或copy后缓存的临时文件，将这个临时文件的格式修改为jpg
-        if file.content_type.eql?("image/png")
-          @filename = "#{File.basename(@file.path, ".*")}.jpg"
-          self.original_filename = @filename
-          jpg_path = File.join(File.dirname(@file.path) , @filename)
-          image = MiniMagick::Image.open(@file.path)
-          image.format("jpg")
-          image.write(jpg_path)
-          @file = CarrierWave::SanitizedFile.new(File.new(jpg_path))
-        end
+        conversion
       end
     end
   end
-  #孙汕锟修改 ------------------------------------------------
 
   # store! nil's the cache_id after it finishes so we need to remember it for deletition
   def remember_cache_id(new_file)
@@ -121,5 +111,24 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
     end
   end
 
-end
+  private 
 
+  def conversion
+    if RailsKindeditor.whether_to_enable_quality
+      unless @file.content_type.eql?("image/gif")
+        #@file为移动或copy后缓存的临时文件，将这个临时文件的格式修改为jpg
+        @filename = "#{File.basename(@file.path, ".*")}.jpg"
+        self.original_filename = @filename
+        jpg_path = File.join(File.dirname(@file.path) , @filename)
+        image = MiniMagick::Image.open(@file.path)
+        if @file.content_type.eql?("image/png") || @file.content_type.eql?("image/bmp")
+          image.format("jpg")
+        end
+        qp = RailsKindeditor.quality_proportion
+        image.combine_options {|c| c.quality "#{qp.to_i}%"} if qp < 100
+        image.write(jpg_path)
+        @file = CarrierWave::SanitizedFile.new(File.new(jpg_path))
+      end
+    end
+  end
+end
