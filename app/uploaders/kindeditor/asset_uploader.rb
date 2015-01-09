@@ -88,7 +88,7 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
 
   def delete_tmp_dir(new_file)
     # make sure we don't delete other things accidentally by checking the name pattern
-    if @cache_id_was.present? && @cache_id_was =~ /[0-9]{10}\-[0-9]{4}\-[0-9]{4}/#/\A[\d]{8}\-[\d]{4}\-[\d]+\-[\d]{4}\z/
+    if @cache_id_was.present? && @cache_id_was =~ /\A[\d]{8}\-[\d]{4}\-[\d]+\-[\d]{4}\z/
       FileUtils.rm_rf(File.join(cache_dir, @cache_id_was))
     end
   end
