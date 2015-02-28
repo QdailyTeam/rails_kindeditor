@@ -232,6 +232,7 @@ KindEditor.lang({
 	'template.fileList' : {
 		'1.html' : '图片和文字',
 		'2.html' : '表格',
-		'3.html' : '项目编号'
+		'3.html' : '项目编号',
+		'4.html' : '两个图片并行模板'
 	}
 }, 'zh_CN');
