@@ -6296,6 +6296,21 @@
                     attrs.height = _undef(attrs.height, 0);
                     return _mediaImg(self.themesPath + 'common/blank.gif', attrs);
                 })
+                .replace(/(<a[^>]*)(href)="([^"]*)"([^>]*>)/ig, function(full, start, key, src, end) {
+                    // 处理所有a标签的href属性，默认都加上http属性，同时注意去除重复的http属性
+                    
+                    src = src.replace(/^(http|https).*:\/\//ig, function(full, proto){
+                        return proto+ '://';
+                    });
+
+                    if(src.indexOf('http') != 0){
+                        src = 'http://' + src;
+                    }
+
+                    full = start + key + '="' + src + '"' + end;
+
+                    return full;
+                })
                 .replace(/<a[^>]*name="([^"]+)"[^>]*>(?:<\/a>)?/ig, function(full) {
                     var attrs = _getAttrList(full);
                     if (attrs.href !== undefined) {
