@@ -6231,6 +6231,37 @@
                     return $0;
                 });
             }
+
+            // qixiu add start
+            // 处理HTML富文本，要求：
+            // 1. 所有的内容都被p标签包裹，不能直接暴露
+            // 2. 如果包含图片，需要给图片加上data-url，同时添加lazy-load
+            var elHTMLWrapper = $('<div></div>').html(html);
+            elHTMLWrapper.contents().each(function() {
+                var elNode = $(this),
+                    tagName;
+
+                if(!elNode[0].tagName){
+                    if(elNode.text().trim() == "") {
+                        elNode.remove();
+                    } else {
+                        elNode.wrap('<p></p>');
+                    }
+                    return;
+                }
+
+                if(elNode[0].tagName){
+                    tagName = elNode[0].tagName;
+
+                    if(!(tagName == 'P' || tagName == 'BR' || tagName == 'DIV')){
+                        elNode.wrap('<p></p>');
+                        return;
+                    }
+                }
+            });
+            html = elHTMLWrapper.html();
+            // qixiu add end
+
             return html.replace(/(<(?:noscript|noscript\s[^>]*)>)([\s\S]*?)(<\/noscript>)/ig, function($0, $1, $2, $3) {
                     return $1 + _unescape($2).replace(/\s+/g, ' ') + $3;
                 })
