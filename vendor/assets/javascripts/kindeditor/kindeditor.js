@@ -6241,8 +6241,8 @@
                 var elNode = $(this),
                     tagName;
 
-                if(!elNode[0].tagName){
-                    if(elNode.text().trim() == "") {
+                if (!elNode[0].tagName) {
+                    if (elNode.text().trim() == "") {
                         elNode.remove();
                     } else {
                         elNode.wrap('<p></p>');
@@ -6250,10 +6250,10 @@
                     return;
                 }
 
-                if(elNode[0].tagName){
+                if (elNode[0].tagName) {
                     tagName = elNode[0].tagName;
 
-                    if(!(tagName == 'P' || tagName == 'BR' || tagName == 'DIV')){
+                    if (!(tagName == 'P' || tagName == 'BR' || tagName == 'DIV' || tagName == 'H1' || tagName == 'H2' || tagName == 'H3' || tagName == 'H4' || tagName == 'OL' || tagName == 'UL' || tagName == 'BLOCKQUOTE')) {
                         elNode.wrap('<p></p>');
                         return;
                     }
